@@ -60,3 +60,7 @@ func hello(ctx echo.Context) error {
 type HTTPMessageBody struct {
 	Message string
 }
+
+func hzn() {
+	// dump horizon bits here
+}
