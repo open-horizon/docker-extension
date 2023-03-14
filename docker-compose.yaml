@@ -1,3 +1,4 @@
 services:
   open-horizon-docker-extension:
     image: ${DESKTOP_PLUGIN_IMAGE}
+    # expose ports?

@@ -2,10 +2,13 @@ package main
 
 import (
 	"flag"
+	_ "fmt"
 	"github.com/labstack/echo/middleware"
+	"log"
 	"net"
 	"net/http"
 	"os"
+	"os/exec"
 
 	"github.com/labstack/echo"
 	"github.com/sirupsen/logrus"
@@ -14,6 +17,12 @@ import (
 var logger = logrus.New()
 
 func main() {
+	connect()
+
+	// hzn() // ping oneself
+}
+
+func connect() {
 	var socketPath string
 	flag.StringVar(&socketPath, "socket", "/run/guest-services/backend.sock", "Unix domain socket to listen on")
 	flag.Parse()
@@ -54,7 +63,12 @@ func listen(path string) (net.Listener, error) {
 }
 
 func hello(ctx echo.Context) error {
-	return ctx.JSON(http.StatusOK, HTTPMessageBody{Message: "hello"})
+	out, err := exec.Command("ls").Output()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	return ctx.JSON(http.StatusOK, HTTPMessageBody{Message: string(out)})
 }
 
 type HTTPMessageBody struct {
@@ -63,4 +77,6 @@ type HTTPMessageBody struct {
 
 func hzn() {
 	// dump horizon bits here
+	_, _ = exec.Command("hzn").Output()
+
 }
