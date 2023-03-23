@@ -9,14 +9,35 @@ const client = createDockerDesktopClient();
 
 function useDockerDesktopClient() {
   return client;
-}
+} 
 
 export function App() {
   const [response, setResponse] = React.useState<string>();
   const ddClient = useDockerDesktopClient();
 
   const fetchAndDisplayResponse = async () => {
+    const result2 = await ddClient.extension.vm?.cli?.exec("mkdir", [" /mnt/c/Users/yasir/Desktop/done"], {
+      stream: {
+        onOutput(data): void {
+          console.log("start 1" + JSON.stringify(data));
+            // As we can receive both `stdout` and `stderr`, we wrap them in a JSON object
+            JSON.stringify(
+              {
+                stdout: data.stdout,
+                stderr: data.stderr,
+              },
+              null,
+              "  "
+            );
+        }
+      }
+    });
+    
+    console.log("    finish 1  " + JSON.stringify(result2) );
+    console.log("   start 2   " );
     const result = await ddClient.extension.vm?.service?.get('/hello');
+    console.log("    finish 2  " + JSON.stringify(result) );
+    // const result = await ddClient.extension.host.cli.exec("kubectl", ["-h"]);
     setResponse(JSON.stringify(result));
   };
 
@@ -24,10 +45,7 @@ export function App() {
     <>
       <Typography variant="h3">Docker extension demo</Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>
-        This is a basic page rendered with MUI, using Docker's theme. Read the
-        MUI documentation to learn more. Using MUI in a conventional way and
-        avoiding custom styling will help make sure your extension continues to
-        look great as Docker's theme evolves.
+        The basic page for a terminal in which you can write down a command
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>
         Pressing the below button will trigger a request to the backend. Its
@@ -35,7 +53,7 @@ export function App() {
       </Typography>
       <Stack direction="row" alignItems="start" spacing={2} sx={{ mt: 4 }}>
         <Button variant="contained" onClick={fetchAndDisplayResponse}>
-          Call backend
+          Fetch response
         </Button>
 
         <TextField
