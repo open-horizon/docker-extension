@@ -16,7 +16,6 @@ import (
 var logger = logrus.New()
 
 func main() {
-	connect()
 	// link to external socket
 
 	var socketPath string
@@ -51,7 +50,8 @@ func main() {
 
 	// run command
 	_, o := hzn("ls")
-	router.GET("/hello", router.JSON(http.StatusOK, HTTPMessageBody{Message: o})) // send help
+
+	router.GET("/hello", o) // send help
 
 	logger.Fatal(router.Start(startURL))
 	// hzn(command) // ping oneself
