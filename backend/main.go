@@ -52,7 +52,7 @@ func main() {
 
 	// run command
 	_, o := hzn("ls")
-	router.GET("/hello", ctx.JSON(http.StatusOK, HTTPMessageBody{Message: o}))
+	router.GET("/hello", router.JSON(http.StatusOK, HTTPMessageBody{Message: o})) // send help
 
 	logger.Fatal(router.Start(startURL))
 	// hzn(command) // ping oneself
