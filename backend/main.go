@@ -18,8 +18,44 @@ var logger = logrus.New()
 
 func main() {
 	connect()
+	// link to external socket
 
-	// hzn() // ping oneself
+	var socketPath string
+	flag.StringVar(&socketPath, "socket", "/run/guest-services/backend.sock", "Unix domain socket to listen on")
+	flag.Parse()
+
+	_ = os.RemoveAll(socketPath)
+
+	logger.SetOutput(os.Stdout)
+
+	logMiddleware := middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Skipper: middleware.DefaultSkipper,
+		Format: `{"time":"${time_rfc3339_nano}","id":"${id}",` +
+			`"method":"${method}","uri":"${uri}",` +
+			`"status":${status},"error":"${error}"` +
+			`}` + "\n",
+		CustomTimeFormat: "2006-01-02 15:04:05.00000",
+		Output:           logger.Writer(),
+	})
+
+	logger.Infof("Starting listening on %s\n", socketPath)
+	router := echo.New()
+	router.HideBanner = true
+	router.Use(logMiddleware)
+	startURL := ""
+
+	ln, err := listen(socketPath)
+	if err != nil {
+		logger.Fatal(err)
+	}
+	router.Listener = ln
+
+	// run command
+	_, o := hzn("ls")
+	router.GET("/hello", ctx.JSON(http.StatusOK, HTTPMessageBody{Message: o}))
+
+	logger.Fatal(router.Start(startURL))
+	// hzn(command) // ping oneself
 }
 
 func connect() {
@@ -71,12 +107,13 @@ func hello(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, HTTPMessageBody{Message: string(out)})
 }
 
-type HTTPMessageBody struct {
-	Message string
-}
+type HTTPMessageBody struct{ Message string }
 
-func hzn() {
-	// dump horizon bits here
-	_, _ = exec.Command("hzn").Output()
+func hzn(cmd string) (error, string) {
+	out, err := exec.Command(cmd).Output()
 
+	if err != nil {
+		log.Fatal(err)
+	}
+	return err, string(out)
 }
