@@ -46,21 +46,6 @@ func main() {
 	logger.Fatal(router.Start(startURL))
 	// hzn(command) // ping oneself
 }
-
-func listen(path string) (net.Listener, error) {
-	return net.Listen("unix", path)
-}
-
-type HTTPMessageBody struct{ Message string }
-
-func hzn(cmd string) (error, string) {
-	out, err := exec.Command(cmd).Output()
-
-	if err != nil {
-		log.Fatal(err)
-	}
-	return err, string(out)
-}
 */
 // port over oh source code?
 package main
@@ -70,6 +55,7 @@ import (
 	"fmt"
 	"github.com/boltdb/bolt"
 	"github.com/golang/glog"
+	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/open-horizon/anax/agreement"
 	"github.com/open-horizon/anax/agreementbot"
@@ -96,6 +82,8 @@ import (
 	"github.com/open-horizon/anax/policy"
 	"github.com/open-horizon/anax/resource"
 	"github.com/open-horizon/anax/worker"
+	"github.com/sirupsen/logrus"
+
 	"log"
 	"net"
 	_ "net/http"
@@ -107,9 +95,6 @@ import (
 	"runtime/pprof"
 	"syscall"
 	"time"
-
-	"github.com/labstack/echo"
-	"github.com/sirupsen/logrus"
 )
 
 // The core of anax is an event handling system that distributes events to workers, where the workers
@@ -294,4 +279,19 @@ func main() {
 	}
 
 	glog.Info("Main process terminating")
+}
+
+func listen(path string) (net.Listener, error) {
+	return net.Listen("unix", path)
+}
+
+type HTTPMessageBody struct{ Message string }
+
+func hzn(cmd string) (error, string) {
+	out, err := exec.Command(cmd).Output()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	return err, string(out)
 }
