@@ -6,45 +6,7 @@ import (
 var logger = logrus.New()
 
 func main() {
-	// link to external socket
 
-	var socketPath string
-	flag.StringVar(&socketPath, "socket", "/run/guest-services/backend.sock", "Unix domain socket to listen on")
-	flag.Parse()
-
-	_ = os.RemoveAll(socketPath)
-
-	logger.SetOutput(os.Stdout)
-
-	logMiddleware := middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Skipper: middleware.DefaultSkipper,
-		Format: `{"time":"${time_rfc3339_nano}","id":"${id}",` +
-			`"method":"${method}","uri":"${uri}",` +
-			`"status":${status},"error":"${error}"` +
-			`}` + "\n",
-		CustomTimeFormat: "2006-01-02 15:04:05.00000",
-		Output:           logger.Writer(),
-	})
-
-	logger.Infof("Starting listening on %s\n", socketPath)
-	router := echo.New()
-	router.HideBanner = true
-	router.Use(logMiddleware)
-	startURL := ""
-
-	ln, err := listen(socketPath)
-	if err != nil {
-		logger.Fatal(err)
-	}
-	router.Listener = ln
-
-	// run command
-	_, o := hzn("ls")
-
-	router.GET("/hello", o) // send help
-
-	logger.Fatal(router.Start(startURL))
-	// hzn(command) // ping oneself
 }
 */
 // port over oh source code?
@@ -55,7 +17,9 @@ import (
 	"fmt"
 	"github.com/boltdb/bolt"
 	"github.com/golang/glog"
+	"github.com/labstack/echo"
 	_ "github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	_ "github.com/labstack/echo/middleware"
 	"github.com/open-horizon/anax/agreement"
 	"github.com/open-horizon/anax/agreementbot"
@@ -82,6 +46,7 @@ import (
 	"github.com/open-horizon/anax/policy"
 	"github.com/open-horizon/anax/resource"
 	"github.com/open-horizon/anax/worker"
+	"github.com/open-horizon/edge-utilities/logger"
 	_ "github.com/sirupsen/logrus"
 
 	"log"
@@ -102,6 +67,7 @@ import (
 // tasks. The config file has to be read in, the databases have to get created, and then the eventing system
 // and the workers can be fired up.
 func main() {
+	//region hen backend
 	configFile := flag.String("config", "/etc/colonus/anax.config", "Config file location")
 	cpuprofile := flag.String("cpuprofile", "", "write cpu profile to file")
 
@@ -277,8 +243,48 @@ func main() {
 	if agbotDB != nil {
 		agbotDB.Close()
 	}
-
 	glog.Info("Main process terminating")
+	//endregion
+
+	//region Docker extendsion
+	var socketPath string // link to external socket
+	flag.StringVar(&socketPath, "socket", "/run/guest-services/backend.sock", "Unix domain socket to listen on")
+	flag.Parse()
+
+	_ = os.RemoveAll(socketPath)
+
+	logger.SetOutput(os.Stdout)
+
+	logMiddleware := middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Skipper: middleware.DefaultSkipper,
+		Format: `{"time":"${time_rfc3339_nano}","id":"${id}",` +
+			`"method":"${method}","uri":"${uri}",` +
+			`"status":${status},"error":"${error}"` +
+			`}` + "\n",
+		CustomTimeFormat: "2006-01-02 15:04:05.00000",
+		Output:           logger.Writer(),
+	})
+
+	logger.Infof("Starting listening on %s\n", socketPath)
+	router := echo.New()
+	router.HideBanner = true
+	router.Use(logMiddleware)
+	startURL := ""
+
+	ln, err := listen(socketPath)
+	if err != nil {
+		logger.Fatal(err)
+	}
+	router.Listener = ln
+
+	// run command
+	_, o := hzn("ls")
+
+	router.GET("/hello", o) // send help
+
+	logger.Fatal(router.Start(startURL))
+	// hzn(command) // ping oneself
+	//endregion
 }
 
 func listen(path string) (net.Listener, error) {
