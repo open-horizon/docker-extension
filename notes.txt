@@ -1,0 +1,85 @@
+DOCKER
+Docker containers simply runs a mini virtual machine(without having to be completely separated from the host so its light and quicker and can communicate directly with host) to run programs 
+this is to make sure the programs run the same regardless of what computer you run it on
+- you can also pick the os for the container 
+
+
+OPEN HORIZON
+-it allocates a computer as a processing unit for the main computer
+- this processor computer is called an agent
+-any computer can be used as an agent
+- allows for the data to be processed nearby on a different machine
+-returns only the required data after processing it(so very compact)
+-allows to split the computing so we can use smaller cheaper and lighter computers to do big tasks
+-also allows to build much small machines(very useful when building robots) since we don’t need a big computer onboard to do the computing 
+- the agents talks to the management hub but this is minimized (management hub is the open horizon central unit)
+
+
+POLICY?
+-policy is like a command that you give to the agent to tell it what to do with the data how to process it, where to return it, and what apps it needs to function etc..
+ - you can upload your policy to the management hub and when you initialized your agents it will automatically send the policy to the agent
+-You can publish a policy using “hzn exchange deployment addpolicy”
+
+Agent/node
+-agent needs docker installed
+-recommended to have at least 512MB ram but could work fine with less
+- it can actually work separately from the management hub incase of failure or compromise
+-management doesn't have much authority over it to minimize risk of takeover
+-you can deploy it on a container, so you can have a container as an agent and another as the main 
+-Since it need to connect to the management hub(through port443) it should have access to outside internet or the management hub should be deployed within the network(so it can access it)
+-The agent could work with multiple docker containers(main machines) and the docker containers could also be deployed on different host machines
+
+
+
+
+how agents works
+First connecting: 
+how to connect the agent automatically(preferred way)
+
+first you you need credentials to register your agent with the management hub(joe gave us those)
+
+the management hub then proceeds to tell the agents what he needs to configure himself to accomplish the tasks we need it to do(this is done by giving him the “policy”)
+You can also do it manually:
+
+Ssh to the agent machine
+
+Configure your credentials within the agent
+
+Download and run the agent_install.sh
+
+The first way is better as an IT department can make the policy and any person in a store can simply just start the agent machine and log in and it will update on itself and do anything it needs to do, but the second one needs a person to have some computer knowledge.
+
+You then register the agent using the policy
+
+
+More about policies(as they are what our extension should do):
+
+Since the agents are autonomous the only way we could tell it what to do is through this policy
+
+They are made of constraints and/or properties:
+	properties Examples like “name” : “some name”, “value”: “true”
+	Some properties are automatically defined by agent(they have the prefix “openhorion”)
+	Constraints are logical expressions in terms of properties:
+		Example “openhorizon.memory >= 2000”
+
+You use “hzn deploycheck” command to check which agents a new policy will affect
+
+Only way to contact the agent(other than the main)
+
+
+
+
+How to start:
+
+First initialize some docker containers
+
+You then need to publish the containers as public open horizon service:
+You make a json file that specifies some information about the container
+Use the command “hzn exchange service publish”
+Your then initialize the docker agents(see above)
+
+Then you need to register the docker agents using “hzn register”
+
+Publish the json file
+
+Publish the policy using “hzn exchange deployment addpolicy”
