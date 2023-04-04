@@ -1,0 +1,60 @@
+-The extension runs on the windows(or any os we are using it on) throught the docker extension
+- The extensions uses the management hub to issues commands using an arch iso 
+(terminal commands)
+Arch iso is like a base arch linux (just terminal)
+-we need to find a way to connect this arch iso to the ubuntu terminal to run the commands on the terminal
+Option- SSH connection
+It connects two devices (usually a clint and a server) 
+Lets the server run shell commands on the terminal
+Its is installed in the default ubuntu os
+Hopefully also installed within the arch os
+Requirements to connects
+It makes a private key and public key pairs
+You uses both keys to authenticate your self to confirm the connect to the server(or machine)
+How to do it on ubuntu
+First make the directory
+mkdir -p ~/.ssh
+chmod 700 ~/.ssh
+ Then generate the key pairs
+$ cd ~/.ssh
+$ ssh-keygen
+Enter file in which to save the key ($HOME/.ssh/id_rsa): id_ubuntucore
+You can also pass in the flag to make a longer key for more security but its not needed
+-b 4096
+Now you can compy the keys made at
+cat ~/.ssh/id_<yourkey>.pub
+ upload them to ubuntu server
+https://login.ubuntu.com/ssh-keys
+Now we can finally connect to the machine remotely
+You can use your ubuntu account username and ip address
+ssh <username>@<device-ip-address>
+Or you can use the id keys using this command
+$ ssh -i ~/.ssh/id_ubuntucore username@192.168.1.00
+
+
+
+
+
+
+
+Now for the docker extension
+First we run docker install -init 
+This makes a docker extension default starter folder(a basic exnstion layout)
+We can make the extension using 
+Docker make -t (name on docker)/ (location)
+Docker Install
+To update we use after debugging(if not in live debug mode)
+Docker make-update
+We can Start a development server so that everytime we make an edit to the code on the server the extension updates automatically and we can see the changes live 
+First we start the host server(default at port 3000)
+npm start
+We can then link the current made extension to the server so it can take the changes from there
+docker extension dev ui-source (location of extension on pc) “http://localhost:300”(server)
+We could also turn on the debug mode which would give us more information everytime we run the code
+Docker extension dev debug (location of extension)
+A Documentation of the different function of docker
+https://docs.docker.com/get-started/docker_cheatsheet.pdf
+A documentation for all the different ui options with interactive use
+https://docs.docker.com/desktop/extensions-sdk/design/mui-best-practices/
+We could go here and choose the look for the ui we want(like a box of text, or a bottom, or even a title screen) or the materials we want then it would give us the code for it pre writer with all the variables we could change labeled(like width height size and stuff) Very Useful!!
+
