@@ -48,6 +48,7 @@ import (
 	"github.com/open-horizon/anax/worker"
 	"github.com/open-horizon/edge-utilities/logger"
 	_ "github.com/sirupsen/logrus"
+	"net/http"
 
 	"log"
 	"net"
@@ -62,12 +63,15 @@ import (
 	"time"
 )
 
-// The core of anax is an event handling system that distributes events to workers, where the workers
-// process events that they are about. However, to get started, anax needs to do a bunch of initialization
-// tasks. The config file has to be read in, the databases have to get created, and then the eventing system
-// and the workers can be fired up.
+var ccd = "ls"
+
 func main() {
-	//region hen backend
+	//region hzn agent
+
+	// The core of anax is an event handling system that distributes events to workers, where the workers
+	// process events that they are about. However, to get started, anax needs to do a bunch of initialization
+	// tasks. The config file has to be read in, the databases have to get created, and then the eventing system
+	// and the workers can be fired up.
 	configFile := flag.String("config", "/etc/colonus/anax.config", "Config file location")
 	cpuprofile := flag.String("cpuprofile", "", "write cpu profile to file")
 
@@ -277,23 +281,25 @@ func main() {
 	}
 	router.Listener = ln
 
-	// run command
-	_, o := hzn("ls")
-
-	router.GET("/hello", o) // send help
+	router.GET("/hello", hello) // send help
 
 	logger.Fatal(router.Start(startURL))
 	// hzn(command) // ping oneself
 	//endregion
 }
 
+// Handler
+func hello(c echo.Context) error {
+	// run command
+	_, o := eexec(ccd)
+	return c.String(http.StatusOK, o)
+}
+
 func listen(path string) (net.Listener, error) {
 	return net.Listen("unix", path)
 }
 
-type HTTPMessageBody struct{ Message string }
-
-func hzn(cmd string) (error, string) {
+func eexec(cmd string) (error, string) {
 	out, err := exec.Command(cmd).Output()
 
 	if err != nil {
