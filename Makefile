@@ -1,5 +1,5 @@
 IMAGE?=my/awesome-extension
-TAG?=dev
+TAG?=latest
 
 BUILDER=buildx-multi-arch
 

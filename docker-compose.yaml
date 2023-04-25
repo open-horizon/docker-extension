@@ -1,6 +1,3 @@
 services:
   open-horizon-docker-extension:
-    extra_hosts:
-      host.docker.internal: host-gateway # perhaps?
     image: ${DESKTOP_PLUGIN_IMAGE}
-    # expose ports?

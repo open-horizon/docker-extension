@@ -3,11 +3,9 @@ package main
 import (
 	"flag"
 	"github.com/labstack/echo/middleware"
-	"log"
 	"net"
 	"net/http"
 	"os"
-	"os/exec"
 
 	"github.com/labstack/echo"
 	"github.com/sirupsen/logrus"
@@ -16,8 +14,6 @@ import (
 var logger = logrus.New()
 
 func main() {
-	// link to external socket
-
 	var socketPath string
 	flag.StringVar(&socketPath, "socket", "/run/guest-services/backend.sock", "Unix domain socket to listen on")
 	flag.Parse()
@@ -48,26 +44,19 @@ func main() {
 	}
 	router.Listener = ln
 
-	// run command
-	_, o := hzn("ls")
-
-	router.GET("/hello", o) // send help
+	router.GET("/hello", hello)
 
 	logger.Fatal(router.Start(startURL))
-	// hzn(command) // ping oneself
 }
 
 func listen(path string) (net.Listener, error) {
 	return net.Listen("unix", path)
 }
 
-type HTTPMessageBody struct{ Message string }
+func hello(ctx echo.Context) error {
+	return ctx.JSON(http.StatusOK, HTTPMessageBody{Message: "hello"})
+}
 
-func hzn(cmd string) (error, string) {
-	out, err := exec.Command(cmd).Output()
-
-	if err != nil {
-		log.Fatal(err)
-	}
-	return err, string(out)
+type HTTPMessageBody struct {
+	Message string
 }

@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React from 'react';
 import Button from '@mui/material/Button';
 import { createDockerDesktopClient } from '@docker/extension-api-client';
 import { Stack, TextField, Typography } from '@mui/material';
@@ -7,56 +7,8 @@ import { Stack, TextField, Typography } from '@mui/material';
 // If you're running this React app in a browser, it won't work properly.
 const client = createDockerDesktopClient();
 
-function useDockerDesktopClient() { return client;}
-
-export function Hzn() {
-    const inputRef = useRef(null);
-    const hisRef = useRef(null)
-    const [text, disp] = useState("");
-    const pipeCommand: (e: any)=>void = (e) => {
-        // grab command
-        const cmd = e.target.cmdd.value
-        alert(cmd)
-
-        // send to backend function
-
-        // display command on screen
-        //inputRef.current ? inputRef.current.value : "" ;
-
-        // display the output
-        disp(cmd)
-    }
-    return (
-        <>
-            <Stack direction="column">
-            <TextField
-                //ref = {hisRef}
-                type="text"
-                sx={{width: 480}}
-                disabled
-                multiline
-                variant="outlined"
-                minRows={5}
-                value={text}
-            />
-            <Stack direction="row">
-            <TextField
-                id="cmdd"
-                type="text"
-                ref = {inputRef}
-                sx={{width: 450}}
-                label="hzn command here"
-                onKeyUp={event => {
-                    event.preventDefault()
-                    if (event.key === "Enter") pipeCommand(event)
-
-                }}
-            />
-            <Button onClick={pipeCommand}/>
-            </Stack>
-            </Stack>
-        </>
-    );
+function useDockerDesktopClient() {
+  return client;
 }
 
 export function App() {
@@ -96,7 +48,6 @@ export function App() {
           value={response ?? ''}
         />
       </Stack>
-      <Hzn />
     </>
   );
 }
