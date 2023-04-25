@@ -49,6 +49,25 @@ func main() {
 	logger.Fatal(router.Start(startURL))
 }
 
+// attempt to communcate to hzn api instead
+// 172.17.0.1 is host system, can try to link to api?
+func hzn(api string) *http.Response {
+	// make GET request
+	get, err := http.Get("https://172.17.0.1/" + api)
+	if err != nil {
+		return nil
+	}
+	return get
+}
+
+// parse hzn commands into api calls instead
+func hznParse(cmd string) {
+	// translate
+
+	// call
+	r := hzn("")
+}
+
 func listen(path string) (net.Listener, error) {
 	return net.Listen("unix", path)
 }
